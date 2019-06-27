@@ -72,16 +72,12 @@ export class InnerSlider extends React.Component {
   };
   componentDidMount = () => {
     let spec = { listRef: this.list, trackRef: this.track, ...this.props };
-
     this.list.addEventListener("mousemove", this.swipeMove, {
       passive: false
     });
-
-    this.list.addEventListener("touchstart", this.touchStart);
-    this.list.addEventListener("touchmove", this.preventTouch, {
+    this.list.addEventListener("touchmove", this.swipeMove, {
       passive: false
     });
-
     this.updateState(spec, true, () => {
       this.adaptHeight();
       this.props.autoplay && this.autoPlay("update");
@@ -121,12 +117,9 @@ export class InnerSlider extends React.Component {
     this.list.removeEventListener("mousemove", this.swipeMove, {
       passive: false
     });
-
-    this.list.removeEventListener("touchstart", this.touchStart);
-    this.list.removeEventListener("touchmove", this.preventTouch, {
+    this.list.removeEventListener("touchmove", this.swipeMove, {
       passive: false
     });
-
     if (this.animationEndCallback) {
       clearTimeout(this.animationEndCallback);
     }
@@ -146,24 +139,6 @@ export class InnerSlider extends React.Component {
       clearInterval(this.autoplayTimer);
     }
   };
-  touchStart(e) {
-    // capture user's starting finger position, for later comparison
-    this.firstClientX = e.touches[0].clientX;
-    this.firstClientY = e.touches[0].clientY;
-  }
-  preventTouch(e) {
-    const minValue = 5; // threshold
-
-    this.clientX = e.touches[0].clientX - this.firstClientX;
-    this.clientY = e.touches[0].clientY - this.firstClientY;
-
-    // Vertical scrolling does not work when you start swiping horizontally.
-    if (Math.abs(this.clientX) > minValue) {
-      e.preventDefault();
-      e.returnValue = false;
-      return false;
-    }
-  }
   componentWillReceiveProps = nextProps => {
     let spec = {
       listRef: this.list,
@@ -738,9 +713,11 @@ export class InnerSlider extends React.Component {
       style: listStyle,
       onClick: this.clickHandler,
       onMouseDown: touchMove ? this.swipeStart : null,
+      // onMouseMove: this.state.dragging && touchMove ? this.swipeMove : null,
       onMouseUp: touchMove ? this.swipeEnd : null,
       onMouseLeave: this.state.dragging && touchMove ? this.swipeEnd : null,
       onTouchStart: touchMove ? this.swipeStart : null,
+      // onTouchMove: this.state.dragging && touchMove ? this.swipeMove : null,
       onTouchEnd: touchMove ? this.swipeEnd : null,
       onTouchCancel: this.state.dragging && touchMove ? this.swipeEnd : null,
       onKeyDown: this.props.accessibility ? this.keyHandler : null
