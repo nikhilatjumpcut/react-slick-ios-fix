@@ -77,8 +77,10 @@ export class InnerSlider extends React.Component {
       passive: false
     });
 
-    window.addEventListener("touchstart", this.touchStart);
-    window.addEventListener("touchmove", this.preventTouch, { passive: false });
+    this.list.addEventListener("touchstart", this.touchStart);
+    this.list.addEventListener("touchmove", this.preventTouch, {
+      passive: false
+    });
 
     this.updateState(spec, true, () => {
       this.adaptHeight();
@@ -120,8 +122,8 @@ export class InnerSlider extends React.Component {
       passive: false
     });
 
-    window.removeEventListener("touchstart", this.touchStart);
-    window.removeEventListener("touchmove", this.preventTouch, {
+    this.list.removeEventListener("touchstart", this.touchStart);
+    this.list.removeEventListener("touchmove", this.preventTouch, {
       passive: false
     });
 
