@@ -76,7 +76,9 @@ export class InnerSlider extends React.Component {
     this.list.addEventListener("mousemove", this.swipeMove, {
       passive: false
     });
-    this.list.addEventListener("touchmove", this.swipeMove, {
+
+    this.list.addEventListener("touchstart", this.touchStart);
+    this.list.addEventListener("touchmove", this.preventTouch, {
       passive: false
     });
 
@@ -119,7 +121,9 @@ export class InnerSlider extends React.Component {
     this.list.removeEventListener("mousemove", this.swipeMove, {
       passive: false
     });
-    this.list.removeEventListener("touchmove", this.swipeMove, {
+
+    this.list.removeEventListener("touchstart", this.touchStart);
+    this.list.removeEventListener("touchmove", this.preventTouch, {
       passive: false
     });
 
@@ -142,6 +146,21 @@ export class InnerSlider extends React.Component {
       clearInterval(this.autoplayTimer);
     }
   };
+  touchStart(e) {
+    // capture user's starting finger position, for later comparison
+    this.firstClientX = e.touches[0].clientX;
+  }
+  preventTouch(e) {
+    const threshold = 5;
+    // only prevent touch on horizontal scroll (for horizontal carousel)
+    // this allows the users to scroll vertically past the carousel when touching the carousel
+    // this also stabilizes the horizontal scroll somewhat, decreasing vertical scroll while horizontal scrolling
+    const clientX = e.touches[0].clientX - this.firstClientX;
+    const horizontalScroll = Math.abs(clientX) > threshold;
+    if (horizontalScroll) {
+      e.preventDefault();
+    }
+  }
   componentWillReceiveProps = nextProps => {
     let spec = {
       listRef: this.list,
