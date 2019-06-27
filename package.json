@@ -1,6 +1,6 @@
 {
   "name": "react-slick-ios-fix",
-  "version": "0.24.5",
+  "version": "0.24.6",
   "description": " React port of slick carousel",
   "main": "./lib",
   "files": [

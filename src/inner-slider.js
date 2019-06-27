@@ -77,10 +77,8 @@ export class InnerSlider extends React.Component {
       passive: false
     });
 
-    this.list.addEventListener("touchstart", this.touchStart);
-    this.list.addEventListener("touchmove", this.preventTouch, {
-      passive: false
-    });
+    window.addEventListener("touchstart", this.touchStart);
+    window.addEventListener("touchmove", this.preventTouch, { passive: false });
 
     this.updateState(spec, true, () => {
       this.adaptHeight();
@@ -122,8 +120,8 @@ export class InnerSlider extends React.Component {
       passive: false
     });
 
-    this.list.removeEventListener("touchstart", this.touchStart);
-    this.list.removeEventListener("touchmove", this.preventTouch, {
+    window.removeEventListener("touchstart", this.touchStart);
+    window.removeEventListener("touchmove", this.preventTouch, {
       passive: false
     });
 
@@ -149,16 +147,19 @@ export class InnerSlider extends React.Component {
   touchStart(e) {
     // capture user's starting finger position, for later comparison
     this.firstClientX = e.touches[0].clientX;
+    this.firstClientY = e.touches[0].clientY;
   }
   preventTouch(e) {
-    const threshold = 5;
-    // only prevent touch on horizontal scroll (for horizontal carousel)
-    // this allows the users to scroll vertically past the carousel when touching the carousel
-    // this also stabilizes the horizontal scroll somewhat, decreasing vertical scroll while horizontal scrolling
-    const clientX = e.touches[0].clientX - this.firstClientX;
-    const horizontalScroll = Math.abs(clientX) > threshold;
-    if (horizontalScroll) {
+    const minValue = 5; // threshold
+
+    this.clientX = e.touches[0].clientX - this.firstClientX;
+    this.clientY = e.touches[0].clientY - this.firstClientY;
+
+    // Vertical scrolling does not work when you start swiping horizontally.
+    if (Math.abs(this.clientX) > minValue) {
       e.preventDefault();
+      e.returnValue = false;
+      return false;
     }
   }
   componentWillReceiveProps = nextProps => {
